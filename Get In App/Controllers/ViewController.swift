@@ -14,6 +14,14 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
 
-
+    @IBAction func didTapRegister(_ sender: UIButton) {
+     performSegue(withIdentifier: "goToForm", sender: self)
+    }
+ 
+    
+    @IBAction func didTapGetIn(_ sender: UIButton) {
+        
+        performSegue(withIdentifier: "goToRectum", sender: self)
+    }
 }
 
