@@ -19,6 +19,13 @@ class RegisterViewController: UIViewController, UITextFieldDelegate,UITableViewD
     var eText : String = ""
     var passText : String = ""
     
+    enum LoginError: Error {
+        case incompleForm
+        case invalidEmail
+        case incorrectPasswordLength
+        case incorrectUserLengt
+    }
+    
     @IBOutlet weak var errorLabel: UILabel!
     
     override func viewDidLoad() {
@@ -41,19 +48,36 @@ class RegisterViewController: UIViewController, UITextFieldDelegate,UITableViewD
      }
     
     @IBAction func didTapSave(_ sender: UIButton) {
-        
-        usernameText.endEditing(true)
-        userText = usernameText.text ?? ""
-        let item = Item(userRegister: userText)
-        items.append(item)
+        do{
+           try logIn()
+            usernameText.endEditing(true)
+            userText = usernameText.text ?? ""
+            let item = Item(userRegister: userText)
+            items.append(item)
+            performSegue(withIdentifier: "goToData", sender: self)
+            usernameText.text = ""
+            emailText.text = ""
+            passwordText.text = ""
+        }catch LoginError.incompleForm {
+            Alert.showBasic(title: "Incomplete form", message: "Please complete the form", vc: self)
+        }catch LoginError.incorrectPasswordLength {
+            Alert.showBasic(title: "Password Too Short", message: "Password must have eight characters minimum", vc: self)
+        }catch LoginError.invalidEmail {
+            Alert.showBasic(title: "Invalid email", message: "Please introduce a valid email format", vc: self)
+        }catch LoginError.incorrectUserLengt {
+            Alert.showBasic(title: "Invalid User", message: "User name is too short", vc: self)
+        }catch{
+            Alert.showBasic(title: "Error trying to save data", message: "Try again mate", vc: self)
+        }
+       
+
         
         emailText.endEditing(true)
         eText = emailText.text ?? ""
         
         passwordText.endEditing(true)
         passText = passwordText.text ?? ""
-  
-       performSegue(withIdentifier: "goToData", sender: self)
+        
            
         }
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -61,6 +85,30 @@ class RegisterViewController: UIViewController, UITextFieldDelegate,UITableViewD
             let destinationVC = segue.destination as! UserTableViewController
             destinationVC.registerViewController = self
 
+        }
+    }
+    
+    func logIn() throws {
+        
+        eText = emailText.text ?? ""
+        passText = passwordText.text ?? ""
+        userText = usernameText.text ?? ""
+        
+        
+        if eText.isEmpty || passText.isEmpty {
+            throw LoginError.incompleForm
+        }
+        
+        if !eText.isValidEmail {
+            throw LoginError.invalidEmail
+        }
+        
+        if passText.count < 8 {
+            throw LoginError.incorrectPasswordLength
+        }
+        
+        if userText.count < 8 {
+            throw LoginError.incorrectUserLengt
         }
     }
 }
